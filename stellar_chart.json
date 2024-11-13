@@ -1,0 +1,424 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "autosize": {
+    "type": "none",
+    "contains": "padding"
+  },
+  "padding": {
+    "left": 20,
+    "top": 20,
+    "right": 20,
+    "bottom": 20
+  },
+  "signals": [
+    {
+      "name": "radius",
+      "update": "min(width, height)/2.5"
+    },
+    {
+      "name": "angularStep",
+      "update": "2 * PI / data('dataset').length/2"
+    },
+    {
+      "name": "startAngle",
+      "update": "-PI / 2 + (data('dataset').length*2-2) *0.25*angularStep"
+    },
+    {
+      "name": "selectedColor",
+      "update": "data('maxValue')[0].max"
+    },
+    {
+      "name": "mouthValue", // Define a constant signal for mouth limit
+      "update": "data('maxValue')[0].min/3"
+    }
+  ],
+  "data": [
+    {
+      "name": "dataset",
+      "transform": [
+        {
+          "type": "collect",
+          "sort": {
+            "field": "Selected",
+            "order": "descending"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sorted_D",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "fold",
+          "fields": [
+            "Global",
+            "Selected"
+          ],
+          "as": [
+            "category",
+            "value"
+          ]
+        },
+        {
+          "type": "formula",
+          "as": "color",
+          "expr": "datum['category'] === 'Global' ? '#BEF3EA' : scale('color', datum['Avg Risk'])"
+        }
+      ]
+    },
+    {
+      "name": "maxValue",
+      "source": "sorted_D",
+      "transform": [
+        {
+          "type": "aggregate",
+          "fields": [
+            "color",
+            "value"
+          ],
+          "ops": [
+            "max",
+            "min"
+          ],
+          "as": [
+            "max",
+            "min"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "keys",
+      "source": "dataset",
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": [
+            "Factor"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sorted",
+      "source": "sorted_D",
+      "transform": [
+        {
+          "type": "formula",
+          "as": "value",
+          "expr": "[datum.value, mouthValue]"
+        },
+        {
+          "type": "formula",
+          "as": "position",
+          "expr": "[datum.Factor, datum.Factor + \"_s\"]"
+        },
+        {
+          "type": "formula",
+          "as": "isMouth",
+          "expr": "[false, true]"
+        },
+        {
+          "type": "flatten", // Create additional rows for mouth points
+          "fields": [
+            "value",
+            "position",
+            "isMouth"
+          ],
+          "as": [
+            "value",
+            "position",
+            "isMouth"
+          ]
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "angular",
+      "type": "point",
+      "range": {
+        "signal": "[startAngle, startAngle + 2 * PI]"
+      },
+      "padding": 0.5,
+      "domain": {
+        "data": "sorted",
+        "field": "position"
+      }
+    },
+    {
+      "name": "radial",
+      "type": "linear",
+      "range": {
+        "signal": "[0, radius]"
+      },
+      "zero": true,
+      "nice": false,
+      "domain": {
+        "data": "sorted",
+        "field": "value"
+      },
+      "domainMin": 0
+    },
+    {
+      "name": "color",
+      "type": "linear",
+      "domain": [
+        0,
+        1
+      ],
+      "range": [
+        "#30EA03",
+        "#FF29FF"
+      ]
+    },
+    {
+      "name": "legendColor",
+      "type": "ordinal",
+      "domain": [
+        "Global",
+        "Selected"
+      ],
+      "range": [
+        "#BEF3EA",
+        {
+          "signal": "selectedColor"
+        }
+      ]
+    }
+  ],
+  "legends": [
+    {
+      "fill": "legendColor",
+      "orient": "top-left",
+      "direction": "horizontal",
+      "offset": -10,
+      "encode": {
+        "symbols": {
+          "update": {
+            "shape": {
+              "value": "circle"
+            },
+            "size": {
+              "value": 100
+            }
+          }
+        },
+        "labels": {
+          "update": {
+            "fontSize": {
+              "value": 10
+            }
+          }
+        }
+      }
+    }
+  ],
+  "marks": [
+    {
+      "type": "group",
+      "name": "categories",
+      "zindex": 1,
+      "from": {
+        "facet": {
+          "data": "sorted",
+          "name": "facet",
+          "groupby": [
+            "category"
+          ]
+        }
+      },
+      "encode": {
+        "enter": {
+          "x": {
+            "signal": "width/2"
+          },
+          "y": {
+            "signal": "height/2"
+          }
+        }
+      },
+      "marks": [
+        {
+          "type": "line",
+          "name": "category-line",
+          "from": {
+            "data": "facet"
+          },
+          "encode": {
+            "enter": {
+              "interpolate": {
+                "value": "linear-closed"
+              },
+              "x": {
+                "signal": "scale('radial', datum.value) * cos(scale('angular', datum.position) - PI / 2)"
+              },
+              "y": {
+                "signal": "scale('radial', datum.value) * sin(scale('angular', datum.position) - PI / 2)"
+              },
+              "stroke": {
+                "field": "color"
+              },
+              "strokeWidth": {
+                "value": 1
+              },
+              "fill": {
+                "field": "color"
+              },
+              "fillOpacity": {
+                "value": 0.2
+              }
+            }
+          }
+        },
+        {
+          "type": "symbol",
+          "name": "vertex-symbol",
+          "from": {
+            "data": "facet"
+          },
+          "encode": {
+            "enter": {
+              "x": {
+                "signal": "scale('radial', datum.value) * cos(scale('angular', datum.position) - PI / 2)"
+              },
+              "y": {
+                "signal": "scale('radial', datum.value) * sin(scale('angular', datum.position) - PI / 2)"
+              },
+              "fill": {
+                "field": "color"
+              },
+              "size": {
+                "value": 20
+              },
+              "shape": {
+                "value": "circle"
+              },
+              "tooltip": {
+                "signal": "datum"
+              }
+            },
+          "update": {
+            "opacity": [
+              {
+                "test": "datum.isMouth",
+                "value": 0
+              },
+              {
+                "value": 1
+              }
+            ]
+          }
+          }
+        }
+      ]
+    },
+    {
+      "type": "rule",
+      "name": "radial-grid",
+      "from": {
+        "data": "keys"
+      },
+      "zindex": 0,
+      "encode": {
+        "enter": {
+          "x": {
+            "signal": "width / 2"
+          },
+          "y": {
+            "signal": "height / 2"
+          },
+          "x2": {
+            "signal": "width / 2 + radius * cos(scale('angular', datum.Factor) - PI / 2)"
+          },
+          "y2": {
+            "signal": "height / 2 + radius * sin(scale('angular', datum.Factor) - PI / 2)"
+          },
+          "stroke": {
+            "value": "lightgray"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "name": "key-label",
+      "from": {
+        "data": "keys"
+      },
+      "zindex": 1,
+      "encode": {
+        "enter": {
+          "x": {
+            "signal": "(width / 2 + (radius + 5) * cos(scale('angular', datum.Factor) - PI / 2))"
+          },
+          "y": {
+            "signal": "(height / 2 + (radius + 5) * sin(scale('angular', datum.Factor) - PI / 2))"
+          },
+          "text": {
+            "field": "Factor"
+          },
+          "align": [
+            {
+              "test": "abs(scale('angular', datum.Factor) - PI / 2) > PI / 2",
+              "value": "right"
+            },
+            {
+              "value": "left"
+            }
+          ],
+          "baseline": [
+            {
+              "test": "scale('angular', datum.Factor) - PI / 2 > 0",
+              "value": "top"
+            },
+            {
+              "test": "scale('angular', datum.Factor) - PI / 2 == 0",
+              "value": "middle"
+            },
+            {
+              "value": "bottom"
+            }
+          ],
+          "fontSize": {
+            "value": 10
+          },
+          "tooltip": {
+            "signal": "datum"
+          }
+        }
+      }
+    },
+    {
+      "type": "line",
+      "name": "outer-line",
+      "from": {
+        "data": "radial-grid"
+      },
+      "encode": {
+        "enter": {
+          "interpolate": {
+            "value": "linear-closed"
+          },
+          "x": {
+            "field": "x2"
+          },
+          "y": {
+            "field": "y2"
+          },
+          "stroke": {
+            "value": "lightgray"
+          },
+          "strokeWidth": {
+            "value": 1
+          }
+        }
+      }
+    }
+  ]
+}
