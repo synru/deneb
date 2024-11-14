@@ -16,12 +16,16 @@
       "update": "min(width, height)/2.5"
     },
     {
+      "name": "steps",
+      "update": "data('dataset').length*_enrich"
+    },
+    {
       "name": "angularStep",
-      "update": "2 * PI / data('dataset').length/2"
+      "update": "min(2 * PI / steps, 2*PI/3)"
     },
     {
       "name": "startAngle",
-      "update": "-PI / 2 + (data('dataset').length*2-2) *0.25*angularStep"
+      "update": "-PI / 2 + (steps-2) *0.25*angularStep"
     },
     {
       "name": "selectedColor",
@@ -30,6 +34,26 @@
     {
       "name": "mouthValue", // Define a constant signal for mouth limit
       "update": "data('maxValue')[0].min/3"
+    },
+    {
+      "name": "globalColor",
+      "value": "#11CEBD"
+    },
+    {
+      "name": "vertexSize",
+      "value": "20"
+    },
+    {
+      "name": "edgeSize",
+      "value": "1"
+    },
+    {
+      "name": "chartStyle",
+      "value": "radar"
+    },
+    {
+      "name": "_enrich",
+      "update": "chartStyle == 'radar' ? 1 : 2"
     }
   ],
   "data": [
@@ -63,7 +87,7 @@
         {
           "type": "formula",
           "as": "color",
-          "expr": "datum['category'] === 'Global' ? '#BEF3EA' : scale('color', datum['Avg Risk'])"
+          "expr": "datum['category'] === 'Global' ? globalColor : scale('color', datum['Value'])"
         }
       ]
     },
@@ -112,7 +136,7 @@
         {
           "type": "formula",
           "as": "position",
-          "expr": "[datum.Factor, datum.Factor + \"_s\"]"
+          "expr": "[datum['Factor'], datum['Factor'] + \"_s\"]"
         },
         {
           "type": "formula",
@@ -133,6 +157,16 @@
           ]
         }
       ]
+    },
+    {
+      "name": "final",
+      "source": "sorted",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "chartStyle == 'radar' ? !datum['isMouth'] : true "
+        }
+      ]
     }
   ],
   "scales": [
@@ -140,11 +174,11 @@
       "name": "angular",
       "type": "point",
       "range": {
-        "signal": "[startAngle, startAngle + 2 * PI]"
+        "signal": "[startAngle, startAngle + angularStep * steps]"
       },
       "padding": 0.5,
       "domain": {
-        "data": "sorted",
+        "data": "final",
         "field": "position"
       }
     },
@@ -157,7 +191,7 @@
       "zero": true,
       "nice": false,
       "domain": {
-        "data": "sorted",
+        "data": "final",
         "field": "value"
       },
       "domainMin": 0
@@ -182,7 +216,9 @@
         "Selected"
       ],
       "range": [
-        "#BEF3EA",
+        {
+          "signal": "globalColor"
+        },
         {
           "signal": "selectedColor"
         }
@@ -223,7 +259,7 @@
       "zindex": 1,
       "from": {
         "facet": {
-          "data": "sorted",
+          "data": "final",
           "name": "facet",
           "groupby": [
             "category"
@@ -262,7 +298,7 @@
                 "field": "color"
               },
               "strokeWidth": {
-                "value": 1
+                "signal": "edgeSize"
               },
               "fill": {
                 "field": "color"
@@ -291,7 +327,7 @@
                 "field": "color"
               },
               "size": {
-                "value": 20
+                "signal": "vertexSize"
               },
               "shape": {
                 "value": "circle"
@@ -331,10 +367,10 @@
             "signal": "height / 2"
           },
           "x2": {
-            "signal": "width / 2 + radius * cos(scale('angular', datum.Factor) - PI / 2)"
+            "signal": "width / 2 + radius * cos(scale('angular', datum['Factor']) - PI / 2)"
           },
           "y2": {
-            "signal": "height / 2 + radius * sin(scale('angular', datum.Factor) - PI / 2)"
+            "signal": "height / 2 + radius * sin(scale('angular', datum['Factor']) - PI / 2)"
           },
           "stroke": {
             "value": "lightgray"
@@ -355,17 +391,17 @@
       "encode": {
         "enter": {
           "x": {
-            "signal": "(width / 2 + (radius + 5) * cos(scale('angular', datum.Factor) - PI / 2))"
+            "signal": "(width / 2 + (radius + 5) * cos(scale('angular', datum['Factor']) - PI / 2))"
           },
           "y": {
-            "signal": "(height / 2 + (radius + 5) * sin(scale('angular', datum.Factor) - PI / 2))"
+            "signal": "(height / 2 + (radius + 5) * sin(scale('angular', datum['Factor']) - PI / 2))"
           },
           "text": {
             "field": "Factor"
           },
           "align": [
             {
-              "test": "abs(scale('angular', datum.Factor) - PI / 2) > PI / 2",
+              "test": "abs(scale('angular', datum['Factor']) - PI / 2) > PI / 2",
               "value": "right"
             },
             {
@@ -374,11 +410,11 @@
           ],
           "baseline": [
             {
-              "test": "scale('angular', datum.Factor) - PI / 2 > 0",
+              "test": "scale('angular', datum['Factor']) - PI / 2 > 0",
               "value": "top"
             },
             {
-              "test": "scale('angular', datum.Factor) - PI / 2 == 0",
+              "test": "scale('angular', datum['Factor']) - PI / 2 == 0",
               "value": "middle"
             },
             {
