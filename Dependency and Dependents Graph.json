@@ -1,7 +1,7 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "width": {"signal": "pbiContainerWidth"},
-  "height": {"signal": "pbiContainerHeight-150"},
+  "width": 640,
+  "height": 400,
   "padding": 10,
   
   "signals": [
@@ -34,12 +34,11 @@
     {
       "name": "upstream-data",
       "values": [
-        {"id": 0, "name": "Product X", " parent": null, "group": 1},
-        {"id": 1, "name": "Bulk Y", "parent": 0, "group": 2},
-        {"id": 2, "name": "Packaging Z", "parent": 0, "group": 2},
-        {"id": 3, "name" : "Raw Material A", "parent": 1, "group": 3},
-        {"id": 4, "name" : "Raw Material B", "parent": 2, "group": 3},
-        {"id": 5, "name" : "Raw Material C", "parent": 2, "group": 3}
+        {"id": 0, "name": "Engine", " parent": null, "group": 1},
+        {"id": 1, "name": "Piston", "parent": 0, "group": 2},
+        {"id": 2, "name": "Cylinder Block", "parent": 0, "group": 2},
+        {"id": 3, "name" : "Steel Rod", "parent": 1, "group": 3},
+        {"id": 4, "name" : "Aluminium Alloy", "parent": 2, "group": 3}
       ],
       "transform": [
         {
@@ -54,7 +53,6 @@
           "separation": {"signal": "false"},
           "as": ["y", "x", "depth", "children"]
         },
-        // Flip x positions for right-to-left flow
         {
           "type": "formula",
           "as": "x",
@@ -80,10 +78,9 @@
     {
       "name": "downstream-data",
       "values": [
-        {"id": 0, "name": "Product X", " parent": null, "group": 1},
-        {"id": 6, "name": "Repack Y", "parent": 0, "group": 4},
-        {"id": 7, "name": "Repack Z", "parent": 0, "group": 4},
-        {"id": 8, "name" : "Repack Z1", "parent": 7, "group": 5}
+        {"id": 0, "name": "Engine", " parent": null, "group": 1},
+        {"id": 6, "name": "Car", "parent": 0, "group": 4},
+        {"id": 7, "name": "Truck", "parent": 0, "group": 4}
       ],
       "transform": [
         {
@@ -98,7 +95,6 @@
           "separation": {"signal": "false"},
           "as": ["y", "x", "depth", "children"]
         },
-        // Flip x positions for right-to-left flow
         {
           "type": "formula",
           "as": "x",
@@ -108,40 +104,7 @@
           "type": "formula",
           "as": "type",
           "expr": "\"down\""
-        }/*,
-        {
-          "type": "cross",
-          "filter": "datum.b.id ==0"
-        },
-        {
-          "type": "formula",
-          "as": "id",
-          "expr": "datum.a.id"
-        },
-        {
-          "type": "project",
-          "fields":["a.id", "a.name", "a.parent", "a.group", "a.y", "a.x", "a.depth", "a.children", "b.x", "b.y"],
-          "as": ["id", "name", "parent", "group", "y", "x", "depth", "children", "rootx", "rooty"]
-        },
-        {
-          "type": "formula",
-          "as": "y",
-          "expr": "datum.y - datum.rooty + upRootY"
-        },
-        {
-          "type": "formula",
-          "as": "x",
-          "expr": "datum.x - datum.rootx + upRootX"
-        },
-        {
-          "type": "formula",
-          "as": "parent",
-          "expr": "datum.id == 0 ? null : ''"
-        },
-        {
-          "type": "project",
-          "fields": ["id", "name", "parent", "group", "y", "x", "depth", "children"]
-        }*/
+        }
       ]
     },
     {
