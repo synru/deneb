@@ -3,6 +3,7 @@
   "width": 640,
   "height": 400,
   "padding": 10,
+  "background": "white",
 
   "signals": [
     { "name": "cx", "update": "width / 2" },
@@ -130,6 +131,7 @@
     {
       "type": "path",
       "from": {"data": "link-data"},
+      "name": "test",
       "interactive": false,
       "encode": {
         "update": {
@@ -149,26 +151,25 @@
     },
     {
       "type": "symbol",
-      "from": {"data": "link-data"},
+      "from": { "data": "link-data" },
       "encode": {
         "enter": {
-          "shape": {"value": "triangle"},
-            // Color the arrowhead for visualization
-          "size": {"value": 50}  // Adjust size to control arrowhead appearance
+          "shape": { "value": "triangle" },
+          "size": { "value": 50 }
         },
         "update": {
-          // Calculate the offset to avoid overlap with the circle
           "x": {
-            "signal": "datum.target.x - (datum.target.x - datum.source.x) / hypot(datum.target.x - datum.source.x, datum.target.y - datum.source.y) * (nodeRadius+4)"
+            "signal": "force && isNumber(datum.target.x) && isNumber(datum.source.x)\n  ? datum.target.x - (datum.target.x - datum.source.x)\n      / hypot(datum.target.x - datum.source.x, datum.target.y - datum.source.y)\n      * (nodeRadius + 4)\n  : 0"
           },
           "y": {
-            "signal": "datum.target.y - (datum.target.y - datum.source.y) / hypot(datum.target.x - datum.source.x, datum.target.y - datum.source.y) * (nodeRadius+4)"
+            "signal": "force && isNumber(datum.target.y) && isNumber(datum.source.y)  ? datum.target.y - (datum.target.y - datum.source.y)\n      / hypot(datum.target.x - datum.source.x, datum.target.y - datum.source.y)\n      * (nodeRadius + 4)\n  : 0"
           },
           "angle": {
-            "signal": "atan2(datum.target.y - datum.source.y, datum.target.x - datum.source.x) * 180 / PI+90"
+            "signal": "force && isNumber(datum.target.x) && isNumber(datum.source.x)\n  && isNumber(datum.target.y) && isNumber(datum.source.y)\n  ? (atan2(datum.target.y - datum.source.y, datum.target.x - datum.source.x)\n     * 180 / PI) + 90\n  : 0"
           }
         }
       }
     }
+
   ]
 }
