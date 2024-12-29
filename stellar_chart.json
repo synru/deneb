@@ -40,7 +40,6 @@
     },
     {
       "name": "startAngle",
-
       "value": 0
     },
     {
@@ -53,7 +52,7 @@
     },
     {
       "name": "mouthValue", 
-      "update": "chartStyle == 'lollipop' ? 0 : data('maxValue')[0].min/3"
+      "update": "chartStyle == 'lollipop' ? 2: data('maxValue')[0].min/3"
     },
     {
       "name": "globalColor",
@@ -61,7 +60,8 @@
     },
     {
       "name": "vertexSize",
-      "value": 20
+      "value": 20,
+      "bind": {"input":"range", "min": 20, "max": 150}
     },
     {
       "name": "edgeSize",
@@ -69,7 +69,8 @@
     },
     {
       "name": "chartStyle",
-      "value": "radar"
+      "value": "lollipop",
+      "bind": {"input": "select","options": ["lollipop", "radar"]}
     },
     {
       "name": "_enrich",
@@ -176,23 +177,6 @@
       ]
     },
     {
-      "name": "keys",
-      "source": ["dataset", "dummyData"],
-      "transform": [
-        {
-          "type": "aggregate",
-          "groupby": [
-            "Factor"
-          ]
-        },
-        {
-          "type": "formula",
-          "expr": "indexof(datum.Factor, \"_Dummy\") ==0?0: 1",
-          "as":"opacity"
-        }
-      ]
-    },
-    {
       "name": "sorted",
       "source": ["sorted_D", "dummyData"],
       "transform": [
@@ -237,17 +221,36 @@
       ]
     },
     {
-      "name": "test",
-      "source": "final",
+      "name": "keys",
+      "source": ["dataset", "dummyData"],
       "transform": [
         {
+          "type": "aggregate",
+          "groupby": [
+            "Factor"
+          ]
+        },
+        {
           "type": "formula",
-          "expr": "scale('radial', datum.value) * cos(PI/2-scale('angular', datum.position))",
-          "as": "x"
-        },{
+          "expr": "indexof(datum.Factor, \"_Dummy\") ==0?0: 1",
+          "as":"opacity"
+        }
+      ]
+    },
+    {
+      "name": "keysForAngular",
+      "source": ["final", "dummyData"],
+      "transform": [
+        {
+          "type": "aggregate",
+          "groupby": [
+            "position"
+          ]
+        },
+        {
           "type": "formula",
-          "expr": "-scale('radial', datum.value) * sin(PI/2-scale('angular', datum.position))",
-          "as": "y"
+          "expr": "indexof(datum.position, \"_Dummy\") ==0?0: 1",
+          "as":"opacity"
         }
       ]
     }
@@ -261,8 +264,8 @@
       },
 
       "domain": {
-        "data": "keys",
-        "field": "Factor"
+        "data": "keysForAngular",
+        "field": "position"
       }
     },
     {
@@ -371,12 +374,6 @@
               "interpolate": {
                 "value": "linear-closed"
               },
-              "x": {
-                "signal": "scale('radial', datum.value) * cos(PI/2-scale('angular', datum.position))"
-              },
-              "y": {
-                "signal": "-scale('radial', datum.value) * sin(PI/2 - scale('angular', datum.position))"
-              },
               "stroke": {
                 "field": "color"
               },
@@ -389,6 +386,14 @@
               "fillOpacity": {
                 "value": 0.2
               }
+            },
+            "update":{
+              "x": {
+                "signal": "scale('radial', datum.value) * cos(PI/2-scale('angular', datum.position))"
+              },
+              "y": {
+                "signal": "-scale('radial', datum.value) * sin(PI/2 - scale('angular', datum.position))"
+              }
             }
           }
         },
@@ -400,12 +405,7 @@
           },
           "encode": {
             "enter": {
-              "x": {
-                "signal": "scale('radial', datum.value) * cos(PI/2 - scale('angular', datum.position))"
-              },
-              "y": {
-                "signal": "-scale('radial', datum.value) * sin(PI/2 - scale('angular', datum.position))"
-              },
+
               "fill": {
                 "field": "color"
               },
@@ -420,6 +420,12 @@
               }
             },
           "update": {
+              "x": {
+                "signal": "scale('radial', datum.value) * cos(PI/2 - scale('angular', datum.position))"
+              },
+              "y": {
+                "signal": "-scale('radial', datum.value) * sin(PI/2 - scale('angular', datum.position))"
+              },            
             "opacity": [
               {
                 "test": "datum.isMouth",
