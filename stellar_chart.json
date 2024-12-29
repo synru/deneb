@@ -10,6 +10,9 @@
     "right": 20,
     "bottom": 20
   },
+  "width": 640,
+  "height": 400,
+  "background": "white",
   "signals": [
     {
       "name": "minSteps",
@@ -37,7 +40,7 @@
     },
     {
       "name": "startAngle",
-      //"update": "-PI / 2 + (steps-2) *0.25*angularStep"
+
       "value": 0
     },
     {
@@ -49,7 +52,7 @@
       "update": "data('maxValue')[0].max"
     },
     {
-      "name": "mouthValue", // Define a constant signal for mouth limit
+      "name": "mouthValue", 
       "update": "chartStyle == 'lollipop' ? 0 : data('maxValue')[0].min/3"
     },
     {
@@ -76,6 +79,13 @@
   "data": [
     {
       "name": "dataset",
+      "values": [
+        {"Factor": "Drink Too Much", "Value": 10, "Global": 5, "Selected": 35},
+        {"Factor": "Not Enough Sleep", "Value": 20, "Global": 30, "Selected": 20},
+        {"Factor": "Eating Junk Food", "Value": 20, "Global": 10, "Selected": 20},
+        {"Factor": "Lacking Exercise", "Value": 15, "Global": 40, "Selected": 15},
+        {"Factor": "Watch Meme Too Often", "Value": 20, "Global": 25, "Selected": 20}
+      ],
       "transform": [
         {
           "type": "collect",
@@ -202,7 +212,7 @@
           "expr": "[false, true]"
         },
         {
-          "type": "flatten", // Create additional rows for mouth points
+          "type": "flatten", 
           "fields": [
             "value",
             "position",
@@ -249,7 +259,7 @@
       "range": {
         "signal": "[startAngle, endAngle]"
       },
-      //"padding": 0.5,
+
       "domain": {
         "data": "keys",
         "field": "Factor"
