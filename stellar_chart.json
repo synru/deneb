@@ -52,7 +52,7 @@
     },
     {
       "name": "mouthValue", 
-      "update": "chartStyle == 'lollipop' ? 2: data('maxValue')[0].min/3"
+      "update": "chartStyle == 'lollipop' ? 0 : data('maxValue')[0].min/3"
     },
     {
       "name": "globalColor",
@@ -61,7 +61,7 @@
     {
       "name": "vertexSize",
       "value": 20,
-      "bind": {"input":"range", "min": 20, "max": 150}
+      "bind": {"input":"range", "min": 20, "max": 150, "step": 1}
     },
     {
       "name": "edgeSize",
@@ -69,8 +69,8 @@
     },
     {
       "name": "chartStyle",
-      "value": "lollipop",
-      "bind": {"input": "select","options": ["lollipop", "radar"]}
+      "value": "stellar",
+      "bind": {"input": "select","options": ["lollipop", "radar", "stellar"]}
     },
     {
       "name": "_enrich",
@@ -409,9 +409,6 @@
               "fill": {
                 "field": "color"
               },
-              "size": {
-                "signal": "vertexSize"
-              },
               "shape": {
                 "value": "circle"
               },
@@ -420,6 +417,9 @@
               }
             },
           "update": {
+              "size": {
+                "signal": "vertexSize"
+              },
               "x": {
                 "signal": "scale('radial', datum.value) * cos(PI/2 - scale('angular', datum.position))"
               },
