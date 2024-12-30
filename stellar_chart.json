@@ -1,12 +1,13 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "padding": {"left": 20, "top": 20, "right": 20, "bottom": 20},
+  
   "width": {"signal": "width"},
   "height": {"signal": "height"},
   "background": "white",
+  "title":{"text": "Why feeling fatigue?", "align":"right"},
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
-    {"name": "height", "update": "containerSize()[1]*0.7"},
+    {"name": "height", "update": "containerSize()[1]*0.8"},
     {"name": "minSteps", "value": 4},
     {"name": "radius", "update": "min(width, height)/2.5"},
     {"name": "factorCount", "update": "data('dataset').length"},
@@ -16,7 +17,12 @@
       "update": "chartStyle == 'radar' ? 2*PI/minSteps : 2*PI/minSteps"
     },
     {"name": "angularStep", "update": "min(2 * PI / steps, minAngularStep)"},
-    {"name": "startAngle", "value": 0},
+    {"name": "startAngle", "update": "inputStartAngle/360*2*PI"},
+    {
+      "name": "inputStartAngle",
+      "value": 0,
+      "bind": {"input": "range", "min": 0, "max": 360, "step": 1}
+    },
     {
       "name": "endAngle",
       "update": "startAngle + (max(minSteps, steps)-1)*angularStep"
@@ -127,7 +133,11 @@
       "name": "sorted",
       "source": ["sorted_D", "dummyData"],
       "transform": [
-        {"type": "formula", "as": "value", "expr": "isArray(datum.value) ? [datum.value[0], mouthValue] :[datum.value, mouthValue]"},
+        {
+          "type": "formula",
+          "as": "value",
+          "expr": "isArray(datum.value) ? [datum.value[0], mouthValue] :[datum.value, mouthValue]"
+        },
         {
           "type": "formula",
           "as": "position",
@@ -148,12 +158,10 @@
         {
           "type": "filter",
           "expr": "chartStyle == 'radar' ? !datum['isMouth'] : true "
-        },{
+        },
+        {
           "type": "collect",
-          "sort": {
-            "field": ["Factor"],
-            "order": ["ascending"]
-          }
+          "sort": {"field": ["Factor"], "order": ["ascending"]}
         }
       ]
     },
@@ -178,12 +186,10 @@
           "type": "formula",
           "expr": "indexof(datum.position, \"_Dummy\") ==0?0: 1",
           "as": "opacity"
-        },{
+        },
+        {
           "type": "collect",
-          "sort": {
-            "field": ["position"],
-            "order": ["ascending"]
-          }
+          "sort": {"field": ["position"], "order": ["ascending"]}
         }
       ]
     }
@@ -296,6 +302,10 @@
       "zindex": 0,
       "encode": {
         "enter": {
+          "stroke": {"value": "lightgray"},
+          "strokeWidth": {"value": 1}
+        },
+        "update":{
           "x": {"signal": "width / 2"},
           "y": {"signal": "height / 2"},
           "x2": {
@@ -304,8 +314,7 @@
           "y2": {
             "signal": "height / 2 - radius * sin(PI/2 - scale('angular', datum['Factor']))"
           },
-          "stroke": {"value": "lightgray"},
-          "strokeWidth": {"value": 1}
+
         }
       }
     },
@@ -316,13 +325,19 @@
       "zindex": 1,
       "encode": {
         "enter": {
+
+          "text": {"field": "Factor"},
+          "fontSize": {"value": 10},
+          "tooltip": {"signal": "datum"},
+          "opacity": {"field": "opacity"}
+        },
+        "update":{
           "x": {
             "signal": "(width / 2 + (radius + 5) * cos(PI/2 - scale('angular', datum['Factor'])))"
           },
           "y": {
             "signal": "(height / 2 -(radius + 5) * sin(PI/2 - scale('angular', datum['Factor'])))"
           },
-          "text": {"field": "Factor"},
           "align": [
             {
               "test": "abs(scale('angular', datum['Factor']) - PI / 2) > PI / 2",
@@ -340,10 +355,7 @@
               "value": "middle"
             },
             {"value": "bottom"}
-          ],
-          "fontSize": {"value": 10},
-          "tooltip": {"signal": "datum"},
-          "opacity": {"field": "opacity"}
+          ]
         }
       }
     },
@@ -354,10 +366,13 @@
       "encode": {
         "enter": {
           "interpolate": {"value": "linear-closed"},
-          "x": {"field": "x2"},
-          "y": {"field": "y2"},
           "stroke": {"value": "lightgray"},
           "strokeWidth": {"value": 1}
+        },
+        "update":{
+                    "x": {"field": "x2"},
+          "y": {"field": "y2"}
+
         }
       }
     }
