@@ -4,9 +4,7 @@
     "type": "fit",
     "contains": "padding",
     "resize": true
-  },
-  "width": "container",
-  "height": "container",
+  }
   "padding": 10,
   
   "signals": [
