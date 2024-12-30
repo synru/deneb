@@ -312,8 +312,7 @@
           },
           "y2": {
             "signal": "height / 2 - radius * sin(PI/2 - scale('angular', datum['Factor']))"
-          },
-
+          }
         }
       }
     },
