@@ -3,7 +3,7 @@
   "padding": {"left": 20, "top": 20, "right": 20, "bottom": 20},
   "width": {"signal": "width"},
   "height": {"signal": "height"},
-  "background": "white",
+  "background": "grey",
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
     {"name": "height", "update": "containerSize()[1]*0.5"},
