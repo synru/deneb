@@ -4,6 +4,7 @@
   "width": {"signal": "width"},
   "height": {"signal": "height"},
   "background": "white",
+  "title":{"text": "Why feeling fatigue?", "align":"right"},
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
     {"name": "height", "update": "containerSize()[1]*0.7"},
@@ -17,6 +18,11 @@
     },
     {"name": "angularStep", "update": "min(2 * PI / steps, minAngularStep)"},
     {"name": "startAngle", "value": 0},
+    {
+      "name": "inputStartAngle",
+      "value": 0,
+      "bind": {"input": "range", "min": 0, "max": 360, "step": 1}
+    },
     {
       "name": "endAngle",
       "update": "startAngle + (max(minSteps, steps)-1)*angularStep"
