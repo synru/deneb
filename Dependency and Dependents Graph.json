@@ -12,7 +12,7 @@
       {
         "name": "height",
         "update": "containerSize()[1]"
-      }    
+      },    
       {
         "name": "upRootX",
         "update": "data('up-root-node')[0].x"
