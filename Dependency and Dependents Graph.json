@@ -1,13 +1,18 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "autosize": {
-    "type": "fit",
-    "contains": "padding",
-    "resize": true
-  }
+  "width": {"signal": "width"},
+  "height": {"signal": "height"},
   "padding": 10,
   
   "signals": [
+    {
+        "name": "width",
+        "update": "containerSize()[0]"
+      },
+      {
+        "name": "height",
+        "update": "containerSize()[1]"
+      }    
       {
         "name": "upRootX",
         "update": "data('up-root-node')[0].x"
