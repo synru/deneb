@@ -1,7 +1,12 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "width": 640,
-  "height": 400,
+  "autosize": {
+    "type": "fit",
+    "contains": "padding",
+    "resize": true
+  },
+  "width": "container",
+  "height": "container",
   "padding": 10,
   
   "signals": [
