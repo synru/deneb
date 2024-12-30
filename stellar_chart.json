@@ -17,7 +17,7 @@
       "update": "chartStyle == 'radar' ? 2*PI/minSteps : 2*PI/minSteps"
     },
     {"name": "angularStep", "update": "min(2 * PI / steps, minAngularStep)"},
-    {"name": "startAngle", "value": 0},
+    {"name": "startAngle", "update": "inputStartAngle/360*2*PI"},
     {
       "name": "inputStartAngle",
       "value": 0,
