@@ -236,7 +236,7 @@
       }
     }
   ],
-  "marks": [
+    "marks": [
     {
       "type": "group",
       "name": "categories",
@@ -301,6 +301,10 @@
       "zindex": 0,
       "encode": {
         "enter": {
+          "stroke": {"value": "lightgray"},
+          "strokeWidth": {"value": 1}
+        },
+        "update":{
           "x": {"signal": "width / 2"},
           "y": {"signal": "height / 2"},
           "x2": {
@@ -309,8 +313,7 @@
           "y2": {
             "signal": "height / 2 - radius * sin(PI/2 - scale('angular', datum['Factor']))"
           },
-          "stroke": {"value": "lightgray"},
-          "strokeWidth": {"value": 1}
+
         }
       }
     },
@@ -321,13 +324,19 @@
       "zindex": 1,
       "encode": {
         "enter": {
+
+          "text": {"field": "Factor"},
+          "fontSize": {"value": 10},
+          "tooltip": {"signal": "datum"},
+          "opacity": {"field": "opacity"}
+        },
+        "update":{
           "x": {
             "signal": "(width / 2 + (radius + 5) * cos(PI/2 - scale('angular', datum['Factor'])))"
           },
           "y": {
             "signal": "(height / 2 -(radius + 5) * sin(PI/2 - scale('angular', datum['Factor'])))"
           },
-          "text": {"field": "Factor"},
           "align": [
             {
               "test": "abs(scale('angular', datum['Factor']) - PI / 2) > PI / 2",
@@ -345,10 +354,7 @@
               "value": "middle"
             },
             {"value": "bottom"}
-          ],
-          "fontSize": {"value": 10},
-          "tooltip": {"signal": "datum"},
-          "opacity": {"field": "opacity"}
+          ]
         }
       }
     },
@@ -359,10 +365,13 @@
       "encode": {
         "enter": {
           "interpolate": {"value": "linear-closed"},
-          "x": {"field": "x2"},
-          "y": {"field": "y2"},
           "stroke": {"value": "lightgray"},
           "strokeWidth": {"value": 1}
+        },
+        "update":{
+                    "x": {"field": "x2"},
+          "y": {"field": "y2"}
+
         }
       }
     }
