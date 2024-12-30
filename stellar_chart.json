@@ -3,7 +3,7 @@
   "padding": {"left": 20, "top": 20, "right": 20, "bottom": 20},
   "width": {"signal": "width"},
   "height": {"signal": "height"},
-  "background": "black",
+  "background": "yellow",
   "title":{"text": "Why feeling fatigue?", "align":"right"},
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
