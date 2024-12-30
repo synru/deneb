@@ -2,8 +2,8 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "padding": {"left": 20, "top": 20, "right": 20, "bottom": 20},
   "width": {"signal": "width"},
-  "height": 100,
-  "background": "black",
+  "height": {"signal": "height"},
+  "background": "white",
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
     {"name": "height", "update": "containerSize()[1]*0.5"},
