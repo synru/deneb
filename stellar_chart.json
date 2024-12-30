@@ -18,7 +18,7 @@
       },
       {
         "name": "height",
-        "update": "containerSize()[1]*0.8"
+        "update": "containerSize()[1]*0.5"
       },      
     {
       "name": "minSteps",
