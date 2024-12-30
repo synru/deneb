@@ -7,7 +7,7 @@
   "title":{"text": "Why feeling fatigue?", "align":"right"},
   "signals": [
     {"name": "width", "update": "containerSize()[0]*0.8"},
-    {"name": "height", "update": "containerSize()[1]*0.7"},
+    {"name": "height", "update": "containerSize()[1]*0.6"},
     {"name": "minSteps", "value": 4},
     {"name": "radius", "update": "min(width, height)/2.5"},
     {"name": "factorCount", "update": "data('dataset').length"},
