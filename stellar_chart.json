@@ -1,9 +1,5 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "autosize": {
-    "type": "none",
-    "contains": "padding"
-  },
   "padding": {
     "left": 20,
     "top": 20,
