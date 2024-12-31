@@ -2,57 +2,318 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "width": {"signal": "width"},
   "height": {"signal": "height"},
-  
+  "title": {"text": "What made up flour and what flour can make"},
   "signals": [
+    {"name": "width", "update": "containerSize()[0]*0.8"},
+    {"name": "height", "update": "containerSize()[1]*0.8"},
     {
-        "name": "width",
-        "update": "containerSize()[0]*0.8"
-      },
-      {
-        "name": "height",
-        "update": "containerSize()[1]"
-      },    
-      {
-        "name": "upRootX",
-        "update": "data('up-root-node')[0].x"
-      },
-      {
-        "name": "upRootY",
-        "update": "data('up-root-node')[0].y"
-      },
-      {
-        "name": "upRoot",
-        "update": "data('up-root-node')[0]"
-      },
-      {
-        "name": "downOffsetX",
-        "update": "upRootX - data('down-root-node')[0].x"
-      },
-      {
-        "name": "downOffsetY",
-        "update": "upRootY - data('down-root-node')[0].y"
-      }
-    ],
-
+      "name": "upRootX",
+      "update": "data('up-root-node')[0] ? data('up-root-node')[0].x : 0"
+    },
+    {
+      "name": "upRootY",
+      "update": "data('up-root-node')[0]? data('up-root-node')[0].y : 0"
+    },
+    {"name": "rootIdx", "value": 1},
+    {"name": "rootNodeSize", "value": 1000},
+    {"name": "minNodeSize", "update": "rootNodeSize/20"},
+    {"name": "maxNodeSize", "update": "rootNodeSize*1.5"},
+    {"name": "basePathSize", "update": "sqrt(rootNodeSize)"},
+    {"name": "minPathSize", "value": 1},
+    {"name": "maxPathSize", "update": "basePathSize*sqrt(1.5)"}
+  ],
   "data": [
     {
-      "name": "dataset"
+      "name": "dataset",
+      "values": [
+        {
+          "id": 1,
+          "name": "Flour",
+          "parent": null,
+          "group": "Intermediate Product",
+          "relationship": "Dependent",
+          "contribution": 1
+        },
+        {
+          "id": 1,
+          "name": "Flour",
+          "parent": null,
+          "group": "Intermediate Product",
+          "relationship": "Dependency",
+          "contribution": 1
+        },
+        {
+          "id": 2,
+          "name": "Grain",
+          "parent": 1,
+          "group": "Primary Ingredient",
+          "relationship": "Dependency",
+          "contribution": 0.7
+        },
+        {
+          "id": 3,
+          "name": "Seeds",
+          "parent": 2,
+          "group": "Agricultural Input",
+          "relationship": "Dependency",
+          "contribution": 0.3
+        },
+        {
+          "id": 4,
+          "name": "Fertilizers",
+          "parent": 2,
+          "group": "Agricultural Input",
+          "relationship": "Dependency",
+          "contribution": 0.15
+        },
+        {
+          "id": 5,
+          "name": "Pesticides/Herbicides",
+          "parent": 2,
+          "group": "Agricultural Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 6,
+          "name": "Water",
+          "parent": 2,
+          "group": "Agricultural Input",
+          "relationship": "Dependency",
+          "contribution": 0.15
+        },
+        {
+          "id": 7,
+          "name": "Machinery",
+          "parent": 2,
+          "group": "Agricultural Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 8,
+          "name": "Natural Processes",
+          "parent": 2,
+          "group": "Environmental Input",
+          "relationship": "Dependency",
+          "contribution": 0.3
+        },
+        {
+          "id": 9,
+          "name": "Sunlight",
+          "parent": 8,
+          "group": "Environmental Input",
+          "relationship": "Dependency",
+          "contribution": 0.1
+        },
+        {
+          "id": 10,
+          "name": "Soil",
+          "parent": 8,
+          "group": "Environmental Input",
+          "relationship": "Dependency",
+          "contribution": 0.1
+        },
+        {
+          "id": 11,
+          "name": "Air",
+          "parent": 8,
+          "group": "Environmental Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 12,
+          "name": "Pollination",
+          "parent": 8,
+          "group": "Environmental Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 13,
+          "name": "Additives",
+          "parent": 1,
+          "group": "Processing Input",
+          "relationship": "Dependency",
+          "contribution": 0.2
+        },
+        {
+          "id": 14,
+          "name": "Fortifiers",
+          "parent": 13,
+          "group": "Processing Input",
+          "relationship": "Dependency",
+          "contribution": 0.1
+        },
+        {
+          "id": 15,
+          "name": "Bleaching Agents",
+          "parent": 13,
+          "group": "Processing Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 16,
+          "name": "Preservatives",
+          "parent": 13,
+          "group": "Processing Input",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 17,
+          "name": "Milling Equipment",
+          "parent": 1,
+          "group": "Processing Input",
+          "relationship": "Dependency",
+          "contribution": 0.1
+        },
+        {
+          "id": 18,
+          "name": "Roller Mills",
+          "parent": 17,
+          "group": "Equipment",
+          "relationship": "Dependency",
+          "contribution": 0.05
+        },
+        {
+          "id": 19,
+          "name": "Grinders",
+          "parent": 17,
+          "group": "Equipment",
+          "relationship": "Dependency",
+          "contribution": 0.03
+        },
+        {
+          "id": 20,
+          "name": "Sieves",
+          "parent": 17,
+          "group": "Equipment",
+          "relationship": "Dependency",
+          "contribution": 0.02
+        },
+        {
+          "id": 21,
+          "name": "Dough",
+          "parent": 1,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.4
+        },
+        {
+          "id": 22,
+          "name": "Bread Dough",
+          "parent": 21,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.2
+        },
+        {
+          "id": 23,
+          "name": "Bread",
+          "parent": 22,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.2
+        },
+        {
+          "id": 24,
+          "name": "Pastry Dough",
+          "parent": 21,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 25,
+          "name": "Pastries",
+          "parent": 24,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 26,
+          "name": "Pizza Dough",
+          "parent": 21,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 27,
+          "name": "Pizza",
+          "parent": 26,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 28,
+          "name": "Batter",
+          "parent": 1,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.2
+        },
+        {
+          "id": 29,
+          "name": "Pancakes",
+          "parent": 28,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.2
+        },
+        {
+          "id": 30,
+          "name": "Pre-Mixed Products",
+          "parent": 1,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.2
+        },
+        {
+          "id": 31,
+          "name": "Cake Mix",
+          "parent": 30,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 32,
+          "name": "Cakes",
+          "parent": 31,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 33,
+          "name": "Bread Mix",
+          "parent": 30,
+          "group": "Semi-Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        },
+        {
+          "id": 34,
+          "name": "Bread",
+          "parent": 33,
+          "group": "Finished Product",
+          "relationship": "Dependent",
+          "contribution": 0.1
+        }
+      ]
     },
     {
       "name": "upstream-data",
-      "values": [
-        {"id": 0, "name": "Engine", " parent": null, "group": 1},
-        {"id": 1, "name": "Piston", "parent": 0, "group": 2},
-        {"id": 2, "name": "Cylinder Block", "parent": 0, "group": 2},
-        {"id": 3, "name" : "Steel Rod", "parent": 1, "group": 3},
-        {"id": 4, "name" : "Aluminium Alloy", "parent": 2, "group": 3}
-      ],
+      "source": "dataset",
       "transform": [
-        {
-          "type": "stratify",
-          "key": "id",
-          "parentKey": "parent"
-        },
+        {"type": "filter", "expr": "datum['relationship'] == 'Dependency'"},
+        {"type": "stratify", "key": "id", "parentKey": "parent"},
         {
           "type": "tree",
           "method": "tidy",
@@ -60,41 +321,21 @@
           "separation": {"signal": "false"},
           "as": ["y", "x", "depth", "children"]
         },
-        {
-          "type": "formula",
-          "as": "x",
-          "expr": "width/2 - datum.x"
-        },
-        {
-          "type": "formula",
-          "as": "type",
-          "expr": "\"up\""
-        }
+        {"type": "formula", "as": "x", "expr": "width/2 - datum.x"},
+        {"type": "formula", "as": "type", "expr": "\"up\""}
       ]
     },
     {
       "name": "up-root-node",
       "source": "upstream-data",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.id==0"
-        }
-      ]
+      "transform": [{"type": "filter", "expr": "datum.id==rootIdx"}]
     },
     {
       "name": "downstream-data",
-      "values": [
-        {"id": 0, "name": "Engine", " parent": null, "group": 1},
-        {"id": 6, "name": "Car", "parent": 0, "group": 4},
-        {"id": 7, "name": "Truck", "parent": 0, "group": 4}
-      ],
+      "source": "dataset",
       "transform": [
-        {
-          "type": "stratify",
-          "key": "id",
-          "parentKey": "parent"
-        },
+        {"type": "filter", "expr": "datum['relationship'] == 'Dependent'"},
+        {"type": "stratify", "key": "id", "parentKey": "parent"},
         {
           "type": "tree",
           "method": "tidy",
@@ -104,110 +345,161 @@
         },
         {
           "type": "formula",
-          "as": "x",
-          "expr": "datum.x+width/2"
+          "expr": "datum.id == rootIdx ? -datum.y +upRootY : null",
+          "as": "_offsetY"
         },
         {
-          "type": "formula",
-          "as": "type",
-          "expr": "\"down\""
-        }
-      ]
-    },
-    {
-      "name": "down-root-node",
-      "source": "downstream-data",
-      "transform": [
-        {
-          "type": "filter",
-          "expr": "datum.id==0"
-        }
-      ]
-    },
-    {
-      "name": "downstream-offseted",
-      "source": "downstream-data",
-      "transform": [
-        {
-          "type": "formula",
-          "as": "y",
-          "expr": "datum.y"
+          "type": "joinaggregate",
+          "fields": ["_offsetY"],
+          "ops": ["max"],
+          "as": ["_offsetY"]
         },
-        {
-          "type": "formula",
-          "as": "x",
-          "expr": "datum.x"
-        }
-      ]
-    }
-    ,
-    {
-      "name": "upstream-links",
-      "source": "upstream-data",
-      "transform": [
-        { "type": "treelinks" },
-        {
-          "type": "linkpath",
-          "orient": "horizontal",
-          "shape": "diagonal"
-        }
-      ]
-    },
-    {
-      "name": "downstream-links",
-      "source": "downstream-data",
-      "transform": [
-        { "type": "treelinks" },
-        {
-          "type": "linkpath",
-          "orient": "horizontal",
-          "shape": "diagonal"
-        },
-        {
-          "type": "formula",
-          "as": "source",
-          "expr": "datum.source.id == 0 ? upRoot : datum.source"
-        }
-      ]
-    },
-    {
-      "name": "downstream-remove-root",
-      "transform": [
-        { "type": "filter",
-          "expr": "datum.id==0"
-         }
+        {"type": "formula", "as": "x", "expr": "datum.x+upRootX"},
+        {"type": "formula", "as": "y", "expr": "datum.y + datum._offsetY"},
+        {"type": "formula", "as": "type", "expr": "\"down\""}
       ]
     },
     {
       "name": "overall-nodes",
-      "source":["downstream-data", "upstream-data"],
+      "source": ["downstream-data", "upstream-data"],
       "transform": [
+        {"type": "collect"},
         {
-          "type": "collect"
+          "type": "formula",
+          "as": "display",
+          "expr": "datum.parent== null ? 'Flour' : datum.group"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.type == 'up' ? -1: 1) * (datum.children ? -1 : 1) *(sqrt(datum.size) / 2+2)",
+          "as": "labelDx"
+        },
+        {
+          "type": "formula",
+          "expr": "(datum.type == 'up' ? -1: 1) * (datum.children ? -1 : 1) ==-1 ? 'right' : 'left'",
+          "as": "labelAlign"
+        },
+        {
+          "type": "lookup",
+          "from": "dataset",
+          "key": "id",
+          "fields": ["id"],
+          "as": ["obj"]
+        },
+        {
+          "type": "formula",
+          "expr": "clamp(datum.obj.contribution * rootNodeSize, minNodeSize, maxNodeSize)",
+          "as": "size"
+        },
+        {"type": "extent", "field": "y", "signal": "y_extent"},
+        {"type": "formula", "as": "y", "expr": "datum.y - y_extent[0]"},
+        {"type": "extent", "field": "y", "signal": "y_extent1"},
+        {
+          "type": "formula",
+          "as": "y",
+          "expr": "y_extent[1] == y_extent1[0] ? height/2 : 70+(datum.y - y_extent1[0]) / (y_extent1[1] - y_extent1[0]) *(height-70)"
+        },
+        {
+          "type": "window",
+          "sort": {"field": "x", "order": "ascending"},
+          "ops": ["dense_rank"],
+          "as": ["depth"]
+        },
+        {"type": "extent", "field": "depth", "signal": "depth_extent"},
+        {
+          "type": "formula",
+          "as": "x",
+          "expr": "depth_extent[1] ==1 ? 0 : (datum.depth-1) / (depth_extent[1] -1)*width"
         }
       ]
     },
     {
       "name": "overall-links",
-      "source":["downstream-links", "upstream-links"],
+      "source": "overall-nodes",
       "transform": [
+        {"type": "filter", "expr": "datum.parent != null"},
         {
-          "type": "collect"
+          "type": "lookup",
+          "from": "overall-nodes",
+          "key": "id",
+          "fields": ["parent"],
+          "values": ["x", "y"],
+          "as": ["source_x", "source_y"]
+        },
+        {"type": "formula", "as": "target_x", "expr": "datum.x"},
+        {"type": "formula", "as": "target_y", "expr": "datum.y"},
+        {
+          "type": "linkpath",
+          "orient": "horizontal",
+          "shape": "diagonal",
+          "sourceX": {"field": "source_x"},
+          "sourceY": {"field": "source_y"},
+          "targetX": {"field": "target_x"},
+          "targetY": {"field": "target_y"}
+        },
+        {
+          "type": "formula",
+          "expr": "clamp(datum.obj.contribution * basePathSize, minPathSize, maxPathSize)",
+          "as": "strokeWidth"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.obj.contribution ? [] : [5,5]",
+          "as": "strokeDash"
+        },
+        {
+          "type": "formula",
+          "expr": "datum.type == 'up' ? 'Dependency' : 'Dependent'",
+          "as": "style"
+        },
+        {
+          "type": "project",
+          "fields": ["path", "strokeWidth", "strokeDash", "style"]
         }
       ]
     }
   ],
-
   "scales": [
     {
       "name": "color",
-      "type": "linear",
-      "domain": {"data": "overall-nodes", "field": "depth"},
-      "range": {"scheme": "magma"},
-      "zero": true
+      "type": "ordinal",
+      "domain": {"data": "overall-nodes", "field": "display"},
+      "range": {"scheme": "accent"}
+    },
+    {
+      "name": "pathColor",
+      "type": "ordinal",
+      "domain": ["Dependent", "Dependency"],
+      "range": {"scheme": "pastel1"}
+    },
+    {
+      "name": "pathDash",
+      "type": "ordinal",
+      "domain": ["[]", "[5,5]"],
+      "range": {"scheme": "magma"}
     }
   ],
-
+  "legends": [
+    {
+      "fill": "color",
+      "orient": "top-left",
+      "direction": "horizontal",
+      "symbolType": {"value": "circle"}
+    },
+    {
+      "strokeDash": "pathDash",
+      "stroke": "pathColor",
+      "direction": "horizontal",
+      "symbolType": "stroke",
+      "orient": "top-left",
+      "padding": {"value": -4.5},
+      "encode": {
+        "symbols": {
+          "update": {"strokeWidth": {"value": 3}, "size": {"value": 300}}
+        }
+      }
+    }
+  ],
   "marks": [
     {
       "type": "path",
@@ -215,7 +507,10 @@
       "encode": {
         "update": {
           "path": {"field": "path"},
-          "stroke": {"value": "#ccc"}
+          "stroke": {"scale": "pathColor", "field": "style"},
+          "strokeWidth": {"field": "strokeWidth"},
+          "strokeDash": {"scale": "pathDash", "field": "style"},
+          "opacity": {"value": 0.5}
         }
       }
     },
@@ -224,14 +519,21 @@
       "from": {"data": "overall-nodes"},
       "encode": {
         "enter": {
-          "size": {"value": 200},
-          "stroke": {"value": "#fff"},
-          "opacity":{"signal": "datum.type == 'down' && datum.id == 0 ? 0 : 1"}
+          "stroke": {"value": "#ffffff"},
+          "opacity": {
+            "signal": "datum.type == 'down' && datum.id == rootIdx ? 0 : 1"
+          },
+          "tooltip":{"signal": "{Contribution: format(datum.obj.contribution, '.0%')}"}
         },
         "update": {
           "x": {"field": "x"},
           "y": {"field": "y"},
-          "fill": {"scale": "color", "field": "depth"}
+          "size": {"field": "size"},
+          "fill": {"scale": "color", "field": "display"}
+        },
+        "hover": {
+          "size": {"signal": "datum.size*2"},
+          "stroke": {"value": "#000000"}
         }
       }
     },
@@ -243,13 +545,13 @@
           "text": {"field": "name"},
           "fontSize": {"value": 9},
           "baseline": {"value": "middle"},
-          "opacity":{"signal": "datum.type == 'down' && datum.id == 0 ? 0 : 1"}
+          "opacity": {"signal": "datum.parent ? 1: 0"}
         },
         "update": {
           "x": {"field": "x"},
           "y": {"field": "y"},
-          "dx": {"signal": "datum.children ? -7 : 7"},
-          "align": {"signal": "datum.children ? 'right' : 'left'"}
+          "dx": {"field": "labelDx"},
+          "align": {"field": "labelAlign"}
         }
       }
     }
