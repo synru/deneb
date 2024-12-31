@@ -484,7 +484,8 @@
       "fill": "color",
       "orient": "top-left",
       "direction": "horizontal",
-      "symbolType": {"value": "circle"}
+      "symbolType": {"value": "circle"},
+      "columns":4
     },
     {
       "strokeDash": "pathDash",
