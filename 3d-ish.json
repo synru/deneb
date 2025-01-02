@@ -3,11 +3,12 @@
   "description": "3D-ish random points with a wireframe cube. Drag to rotate around X & Y axes. Only rotates on mouse drag, and speed can be adjusted via a slider.",
   "width": {"signal": "width"},
   "height": {"signal": "height"},
-  "padding": 5,
+  
+  "title":{"text": "3D-ish rotatable model"},
 
   "signals": [
-    {"name": "width", "update": "containerSize()[0]*2"},
-    {"name": "height", "update": "containerSize()[1]*2"},    
+    {"name": "width", "update": "containerSize()[0]"},
+    {"name": "height", "update": "containerSize()[1]"},    
 {
       "name": "centerX",
       "update": "width / 2"
