@@ -1,0 +1,490 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "3D-ish random points with a wireframe cube. Drag to rotate around X & Y axes. Only rotates on mouse drag, and speed can be adjusted via a slider.",
+  "width": {"signal": "width"},
+  "height": {"signal": "height"},
+  "padding": 5,
+
+  "signals": [
+    {"name": "width", "update": "containerSize()[0]*2"},
+    {"name": "height", "update": "containerSize()[1]*2"},    
+{
+      "name": "centerX",
+      "update": "width / 2"
+    },
+    {
+      "name": "centerY",
+      "update": "height / 2"
+    },
+    {
+      "name": "visualScale",
+      "value": 1,
+      "bind": {
+        "input": "range",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.05,
+        "name": "Visual Scale"
+      }
+    },
+    {
+      "name": "scaleFactor",
+      "update": "min(width, height) * 0.25 * visualScale"
+    },
+    {
+      "name": "isDragging",
+      "value": false,
+      "on": [
+        {"events": "mousedown", "update": "true"},
+        {"events": "mouseup", "update": "false"}
+      ]
+    },
+    {
+      "name": "rotationSpeed",
+      "value": 0.2,
+      "bind": {
+        "input": "range",
+        "min": 0.01,
+        "max": 1,
+        "step": 0.01,
+        "name": "Rotation Speed"
+      }
+    },
+    {
+      "name": "rotateX",
+      "value": 0,
+      "on": [
+        {
+          "events": {"signal": "drag"},
+          "update": "isDragging ? rotateX + rotationSpeed * drag.dy : rotateX"
+        }
+      ]
+    },
+    {
+      "name": "rotateY",
+      "value": 0,
+      "on": [
+        {
+          "events": {"signal": "drag"},
+          "update": "isDragging ? rotateY - rotationSpeed * drag.dx : rotateY"
+        }
+      ]
+    },
+    {
+      "name": "drag",
+      "value": {"x": 0, "y": 0, "dx": 0, "dy": 0},
+      "on": [
+        {
+          "events": "mousedown",
+          "update": "{x: x(), y: y(), dx: 0, dy: 0}"
+        },
+        {
+          "events": "[mousemove, window:mouseup] > mousemove",
+          "update": "{x: drag.x, y: drag.y, dx: x() - drag.x, dy: y() - drag.y}"
+        }
+      ]
+    }
+  ],
+
+  "data": [
+    {
+      "name": "cars",
+      "values": [
+        {"miles":  0,     "age": 0,   "price":  0   },
+        {"miles": 12000,  "age": 1,   "price": 18000},
+        {"miles": 25000,  "age": 2,   "price": 16000},
+        {"miles": 40000,  "age": 3,   "price": 13000},
+        {"miles": 55000,  "age": 4,   "price": 10000},
+        {"miles": 70000,  "age": 5,   "price":  7000},
+        {"miles": 90000,  "age": 6,   "price":  5000},
+        {"miles": 105000, "age": 7,   "price":  3500},
+        {"miles": 120000, "age": 10,  "price":  2000}
+      ],
+      "transform": [
+        // (1) Scale data from real range to [0..2]
+        {
+          "type": "formula",
+          "as": "x",
+          "expr": "(datum.miles / 120000) * 2"
+        },
+        {
+          "type": "formula",
+          "as": "y",
+          "expr": "(datum.age / 10) * 2"
+        },
+        {
+          "type": "formula",
+          "as": "z",
+          "expr": "(datum.price / 20000) * 2"
+        },
+        // (2) Shift so that (1,1,1) -> (0,0,0)
+        {
+          "type": "formula",
+          "as": "xShift",
+          "expr": "datum.x - 1"
+        },
+        {
+          "type": "formula",
+          "as": "yShift",
+          "expr": "datum.y - 1"
+        },
+        {
+          "type": "formula",
+          "as": "zShift",
+          "expr": "datum.z - 1"
+        },
+        // (3) Rotate around Y
+        {
+          "type": "formula",
+          "as": "xRotY",
+          "expr": "cos(rotateY*PI/180)*datum.xShift - sin(rotateY*PI/180)*datum.zShift"
+        },
+        {
+          "type": "formula",
+          "as": "zRotY",
+          "expr": "sin(rotateY*PI/180)*datum.xShift + cos(rotateY*PI/180)*datum.zShift"
+        },
+        // (4) Rotate around X
+        {
+          "type": "formula",
+          "as": "yRotX",
+          "expr": "cos(rotateX*PI/180)*datum.yShift - sin(rotateX*PI/180)*datum.zRotY"
+        },
+        {
+          "type": "formula",
+          "as": "zRotX",
+          "expr": "sin(rotateX*PI/180)*datum.yShift + cos(rotateX*PI/180)*datum.zRotY"
+        },
+        // (5) No shift back! (So (1,1,1) stays at center = (0,0,0) in rotated space)
+        // (6) Convert final 3D -> 2D: scale & center
+        {
+          "type": "formula",
+          "as": "x2D",
+          "expr": "datum.xRotY * scaleFactor + centerX"
+        },
+        {
+          "type": "formula",
+          "as": "y2D",
+          "expr": "centerY - (datum.yRotX * scaleFactor)"
+        }
+      ]
+    },
+
+    {
+      "name": "cubeEdges",
+      "values": [
+        // Bounding box from (0,0,0) to (2,2,2)
+        {"x0":0,"y0":0,"z0":0,  "x1":2,"y1":0,"z1":0},
+        {"x0":2,"y0":0,"z0":0,  "x1":2,"y1":0,"z1":2},
+        {"x0":2,"y0":0,"z0":2,  "x1":0,"y1":0,"z1":2},
+        {"x0":0,"y0":0,"z0":2,  "x1":0,"y1":0,"z1":0},
+
+        {"x0":0,"y0":2,"z0":0,  "x1":2,"y1":2,"z1":0},
+        {"x0":2,"y0":2,"z0":0,  "x1":2,"y1":2,"z1":2},
+        {"x0":2,"y0":2,"z0":2,  "x1":0,"y1":2,"z1":2},
+        {"x0":0,"y0":2,"z0":2,  "x1":0,"y1":2,"z1":0},
+
+        {"x0":0,"y0":0,"z0":0,  "x1":0,"y1":2,"z1":0},
+        {"x0":2,"y0":0,"z0":0,  "x1":2,"y1":2,"z1":0},
+        {"x0":2,"y0":0,"z0":2,  "x1":2,"y1":2,"z1":2},
+        {"x0":0,"y0":0,"z0":2,  "x1":0,"y1":2,"z1":2}
+      ],
+      "transform": [
+        // SHIFT (1,1,1) -> (0,0,0)
+        { "type": "formula", "as": "xShift0", "expr": "datum.x0 - 1" },
+        { "type": "formula", "as": "yShift0", "expr": "datum.y0 - 1" },
+        { "type": "formula", "as": "zShift0", "expr": "datum.z0 - 1" },
+
+        { "type": "formula", "as": "xShift1", "expr": "datum.x1 - 1" },
+        { "type": "formula", "as": "yShift1", "expr": "datum.y1 - 1" },
+        { "type": "formula", "as": "zShift1", "expr": "datum.z1 - 1" },
+
+        // Rotate around Y
+        {
+          "type": "formula", "as": "xRotY0",
+          "expr": "cos(rotateY*PI/180)*datum.xShift0 - sin(rotateY*PI/180)*datum.zShift0"
+        },
+        {
+          "type": "formula", "as": "zRotY0",
+          "expr": "sin(rotateY*PI/180)*datum.xShift0 + cos(rotateY*PI/180)*datum.zShift0"
+        },
+        {
+          "type": "formula", "as": "xRotY1",
+          "expr": "cos(rotateY*PI/180)*datum.xShift1 - sin(rotateY*PI/180)*datum.zShift1"
+        },
+        {
+          "type": "formula", "as": "zRotY1",
+          "expr": "sin(rotateY*PI/180)*datum.xShift1 + cos(rotateY*PI/180)*datum.zShift1"
+        },
+
+        // Rotate around X
+        {
+          "type": "formula", "as": "yRotX0",
+          "expr": "cos(rotateX*PI/180)*datum.yShift0 - sin(rotateX*PI/180)*datum.zRotY0"
+        },
+        {
+          "type": "formula", "as": "zRotX0",
+          "expr": "sin(rotateX*PI/180)*datum.yShift0 + cos(rotateX*PI/180)*datum.zRotY0"
+        },
+        {
+          "type": "formula", "as": "yRotX1",
+          "expr": "cos(rotateX*PI/180)*datum.yShift1 - sin(rotateX*PI/180)*datum.zRotY1"
+        },
+        {
+          "type": "formula", "as": "zRotX1",
+          "expr": "sin(rotateX*PI/180)*datum.yShift1 + cos(rotateX*PI/180)*datum.zRotY1"
+        },
+
+        // (No shift back!)
+        // Final 2D projection
+        {
+          "type": "formula",
+          "as": "x2D0",
+          "expr": "datum.xRotY0 * scaleFactor + centerX"
+        },
+        {
+          "type": "formula",
+          "as": "y2D0",
+          "expr": "centerY - (datum.yRotX0 * scaleFactor)"
+        },
+        {
+          "type": "formula",
+          "as": "x2D1",
+          "expr": "datum.xRotY1 * scaleFactor + centerX"
+        },
+        {
+          "type": "formula",
+          "as": "y2D1",
+          "expr": "centerY - (datum.yRotX1 * scaleFactor)"
+        }
+      ]
+    },
+{
+  "name": "axes",
+  "values": [
+    // MILES axis: from (0,0,0) to (2,0,0)
+    { "axis": "Miles", "x0": 0, "y0": 0, "z0": 0,  "x1": 2, "y1": 0, "z1": 0 },
+
+    // AGE axis: from (1,0,1) to (0,2,0)
+    { "axis": "Age",   "x0": 0, "y0": 0, "z0": 0,  "x1": 0, "y1": 2, "z1": 0 },
+
+    // PRICE axis: from (0,0,0) to (0,0,2)
+    { "axis": "Price", "x0": 0, "y0": 0, "z0": 0,  "x1": 0, "y1": 0, "z1": 2 }
+  ],
+  "transform": [
+    // 1) SHIFT so (1,1,1) -> (0,0,0)
+    { "type": "formula", "as": "xShift0", "expr": "datum.x0 - 1" },
+    { "type": "formula", "as": "yShift0", "expr": "datum.y0 - 1" },
+    { "type": "formula", "as": "zShift0", "expr": "datum.z0 - 1" },
+
+    { "type": "formula", "as": "xShift1", "expr": "datum.x1 - 1" },
+    { "type": "formula", "as": "yShift1", "expr": "datum.y1 - 1" },
+    { "type": "formula", "as": "zShift1", "expr": "datum.z1 - 1" },
+
+    // 2) Rotate around Y
+    {
+      "type": "formula",
+      "as": "xRotY0",
+      "expr": "cos(rotateY*PI/180)*datum.xShift0 - sin(rotateY*PI/180)*datum.zShift0"
+    },
+    {
+      "type": "formula",
+      "as": "zRotY0",
+      "expr": "sin(rotateY*PI/180)*datum.xShift0 + cos(rotateY*PI/180)*datum.zShift0"
+    },
+    {
+      "type": "formula",
+      "as": "xRotY1",
+      "expr": "cos(rotateY*PI/180)*datum.xShift1 - sin(rotateY*PI/180)*datum.zShift1"
+    },
+    {
+      "type": "formula",
+      "as": "zRotY1",
+      "expr": "sin(rotateY*PI/180)*datum.xShift1 + cos(rotateY*PI/180)*datum.zShift1"
+    },
+
+    // 3) Rotate around X
+    {
+      "type": "formula",
+      "as": "yRotX0",
+      "expr": "cos(rotateX*PI/180)*datum.yShift0 - sin(rotateX*PI/180)*datum.zRotY0"
+    },
+    {
+      "type": "formula",
+      "as": "zRotX0",
+      "expr": "sin(rotateX*PI/180)*datum.yShift0 + cos(rotateX*PI/180)*datum.zRotY0"
+    },
+    {
+      "type": "formula",
+      "as": "yRotX1",
+      "expr": "cos(rotateX*PI/180)*datum.yShift1 - sin(rotateX*PI/180)*datum.zRotY1"
+    },
+    {
+      "type": "formula",
+      "as": "zRotX1",
+      "expr": "sin(rotateX*PI/180)*datum.yShift1 + cos(rotateX*PI/180)*datum.zRotY1"
+    },
+
+    // 4) No shift back! (Consistent with 'cars' & 'cubeEdges')
+    // 5) Final 2D projection
+    {
+      "type": "formula",
+      "as": "x2D0",
+      "expr": "datum.xRotY0 * scaleFactor + centerX"
+    },
+    {
+      "type": "formula",
+      "as": "y2D0",
+      "expr": "centerY - (datum.yRotX0 * scaleFactor)"
+    },
+    {
+      "type": "formula",
+      "as": "x2D1",
+      "expr": "datum.xRotY1 * scaleFactor + centerX"
+    },
+    {
+      "type": "formula",
+      "as": "y2D1",
+      "expr": "centerY - (datum.yRotX1 * scaleFactor)"
+    }
+  ]
+}
+
+,
+    {
+      "name": "axisLabels",
+      "values": [
+        {"label": "0,0,0",    "x":0,"y":0,"z":0},
+        {"label": "Miles=120k", "x":2,"y":0,"z":0},
+        {"label": "Age=10",     "x":0,"y":2,"z":0},
+        {"label": "Price=20k",  "x":0,"y":0,"z":2}
+      ],
+      "transform": [
+        {
+          "type": "formula", "as": "xShift", "expr": "datum.x - 1"
+        },
+        {
+          "type": "formula", "as": "yShift", "expr": "datum.y - 1"
+        },
+        {
+          "type": "formula", "as": "zShift", "expr": "datum.z - 1"
+        },
+        {
+          "type": "formula", "as": "xRotY",
+          "expr": "cos(rotateY*PI/180)*datum.xShift - sin(rotateY*PI/180)*datum.zShift"
+        },
+        {
+          "type": "formula", "as": "zRotY",
+          "expr": "sin(rotateY*PI/180)*datum.xShift + cos(rotateY*PI/180)*datum.zShift"
+        },
+        {
+          "type": "formula", "as": "yRotX",
+          "expr": "cos(rotateX*PI/180)*datum.yShift - sin(rotateX*PI/180)*datum.zRotY"
+        },
+        {
+          "type": "formula", "as": "zRotX",
+          "expr": "sin(rotateX*PI/180)*datum.yShift + cos(rotateX*PI/180)*datum.zRotY"
+        },
+        {
+          "type": "formula",
+          "as": "x2D",
+          "expr": "datum.xRotY * scaleFactor + centerX"
+        },
+        {
+          "type": "formula",
+          "as": "y2D",
+          "expr": "centerY - (datum.yRotX * scaleFactor)"
+        }
+      ]
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "rule",
+      "from": {"data": "cubeEdges"},
+      "encode": {
+        "enter": {
+          "stroke": {"value": "#888"},
+          "strokeWidth": {"value": 1.5}
+        },
+        "update": {
+          "x": {"field": "x2D0"},
+          "y": {"field": "y2D0"},
+          "x2": {"field": "x2D1"},
+          "y2": {"field": "y2D1"}
+        }
+      }
+    },
+    {
+      "type": "rule",
+      "from": {"data": "axes"},
+      "encode": {
+        "enter": {
+          "stroke": {"value": "red"},
+          "strokeWidth": {"value": 2}
+        },
+        "update": {
+          "x": {"field": "x2D0"},
+          "y": {"field": "y2D0"},
+          "x2": {"field": "x2D1"},
+          "y2": {"field": "y2D1"}
+        }
+      }
+    },{
+  "type": "symbol",
+  "from": {"data": "axes"},
+  "encode": {
+    "enter": {
+      "shape": {"value": "triangle-up"}, 
+      "size":  {"value": 150},          
+      "fill":  {"value": "red"},
+      "stroke": {"value": null}
+    },
+    "update": {
+      "x": {"field": "x2D1"},
+      "y": {"field": "y2D1"},
+      "rotate": {
+        "expr": "degrees(atan2(datum.y2D1 - datum.y2D0, datum.x2D1 - datum.x2D0)) + 90"
+      }
+    }
+  }
+},
+    {
+      "type": "symbol",
+      "from": {"data": "cars"},
+      "encode": {
+        "enter": {
+          "size": {"value": 100},
+          "fill": {"value": "steelblue"},
+          "stroke": {"value": "black"},
+          "strokeWidth": {"value": 0.5}
+        },
+        "update": {
+          "x": {"field": "x2D"},
+          "y": {"field": "y2D"},
+      "tooltip": {
+        "signal": "'Miles: ' + datum.miles + ', ' + 'Age: ' + datum.age + ', ' + 'Price: ' + datum.price"
+      }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "axisLabels"},
+      "encode": {
+        "enter": {
+          "fontSize": {"value": 14},
+          "fill": {"value": "red"},
+          "align": {"value": "center"},
+          "baseline": {"value": "middle"}
+        },
+        "update": {
+          "x": {"field": "x2D"},
+          "y": {"field": "y2D"},
+          "text": {"field": "label"}
+        }
+      }
+    }
+  ]
+}
