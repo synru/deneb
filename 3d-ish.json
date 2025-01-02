@@ -7,8 +7,8 @@
   "title":{"text": "3D-ish rotatable model"},
 
   "signals": [
-    {"name": "width", "update": "containerSize()[0]*0.8"},
-    {"name": "height", "update": "containerSize()[1]*0.6"},    
+    {"name": "width", "update": "containerSize()[0]"},
+    {"name": "height", "update": "containerSize()[1]"},    
 {
       "name": "centerX",
       "update": "width / 2"
